@@ -61,7 +61,8 @@ self.addEventListener("activate", event => {
             return cache.match(event.request)
             .then(response => {
                 return response || fetch(event.request);
-              });
+              })
+            .catch(err => console.log(err))
             })
           );
   });
