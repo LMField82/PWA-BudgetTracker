@@ -31,7 +31,7 @@ function saveRecord(record) {
     //create a transaction on the pending db with CRUD (readwrite) access
     const transaction = db.transaction(["pending"], "readwrite");
     //access pending object store
-    const store = transaction.objecStore("pending");
+    const store = transaction.objectStore("pending");
     //add record to store 
     store.add(record);
 }
