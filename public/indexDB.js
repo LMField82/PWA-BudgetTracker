@@ -1,19 +1,21 @@
-window.addEventListener('load', () => {
-    const indexedDB = window.indexedDB || window.mozIndexdedDB
-    || window.webkitIndexedDB || msIndexedDB || window.shimIndexedDB;
+const indexedDB = window.indexedDB || 
+    window.mozIndexdedDB || 
+    window.webkitIndexedDB || 
+    msIndexedDB || 
+    window.shimIndexedDB;
 
 let db;
 //create new db request for a budget database
-const request = indexedDB.open("budget", 1);
+const request = window.indexedDB.open("budget", 1);
     
-request.onupgradeneeded = function({target}) {
+request.onupgradeneeded = function(event) {
     //create object store called "pending" and set to autoincrement to true
-    const db = target.result;
+    const db = event.target.result;
     db.createObjectStore("pending", { autoIncrement: true });
 };
 
-request.onsuccess = function({target}) {
-    db = target.result;
+request.onsuccess = function(event) {
+    db = event.target.result;
     //check if app is online before reading from db
     if (navigator.onLine) {
         checkDatabase();
@@ -38,18 +40,18 @@ function checkDatabase() {
     //open a transaction on the pending db
     const transaction = db.transaction(["pending"], "readwrite");
     //access your pending object store
-    const store = transaction.objecStore("pending");
+    const store = transaction.objectStore("pending");
     //get all records from store in a variable
     const getAll = store.getAll();
 
     getAll.onsuccess = function() {
         console.log(getAll.result)
-        if (getAll.result.length) {
+        if (getAll.result.length > 0) {
             fetch("/api/transaction/bulk", {
                 method: "POST",
                 body: JSON.stringify(getAll.result),
                 headers: {
-                    Accept: "application/json, text/plain",
+                    Accept: "application/json, text/plain, */*",
                     "Content-Type": "application/json"
                 }
             })
@@ -66,6 +68,4 @@ function checkDatabase() {
     };
 }
 
-});
-
-window.addEventListener("online", checkDatabase());
+window.addEventListener("onLine", checkDatabase);
